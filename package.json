@@ -5,58 +5,50 @@
   "main": "dist/main.js",
   "scripts": {
     "dev": "npm run db:up && npm run wait-db && npm run dev:local",
-    "dev:local": "cross-env NODE_ENV=local nodemon --exec ts-node src/main.ts",
-    "dev:development": "cross-env NODE_ENV=development nodemon --exec ts-node src/main.ts",
-    "dev:staging": "cross-env NODE_ENV=staging nodemon --exec ts-node src/main.ts",
+    "dev:local": "cross-env NODE_ENV=local nodemon --exec \"ts-node -r tsconfig-paths/register\" src/main.ts",
+    "dev:development": "cross-env NODE_ENV=development nodemon --exec \"ts-node -r tsconfig-paths/register\" src/main.ts",
+    "dev:staging": "cross-env NODE_ENV=staging nodemon --exec \"ts-node -r tsconfig-paths/register\" src/main.ts",
     "dev:clean": "npm run db:reset && npm run migration:run && npm run seed:run && npm run dev:local",
-    
     "start": "node dist/main.js",
     "production": "cross-env NODE_ENV=production node dist/main.js",
     "build": "tsc",
-
     "db:up": "docker-compose up -d mysql",
     "db:down": "docker-compose down",
     "db:logs": "docker-compose logs -f mysql",
     "db:reset": "docker-compose down -v && docker-compose up -d mysql",
     "db:shell": "docker-compose exec mysql mysql -u api_user -papi_password api_main_db",
-
     "phpmyadmin:up": "docker-compose up -d phpmyadmin",
     "phpmyadmin:down": "docker-compose stop phpmyadmin",
-
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:clean": "docker-compose down -v --rmi all",
-
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm -- migration:generate src/core/database/migrations/Migration -d src/core/database/data-source.ts",
     "migration:run": "npm run typeorm -- migration:run -d src/core/database/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/core/database/data-source.ts",
     "migration:show": "npm run typeorm -- migration:show -d src/core/database/data-source.ts",
     "seed:run": "ts-node src/core/database/seeds/run-seeds.ts",
-
     "test": "cross-env NODE_ENV=test jest",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "test:coverage": "cross-env NODE_ENV=test jest --coverage",
-
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
-
     "wait-db": "node -e \"const net = require('net'); const client = new net.Socket(); const check = () => { client.connect(3306, 'localhost', () => { console.log('✅ MySQL Database ready!'); client.destroy(); process.exit(0); }); client.on('error', () => { setTimeout(check, 1000); }); }; check();\"",
     "clean": "rm -rf dist node_modules",
     "clean:build": "rm -rf dist",
-
     "generate-key": "node generate-key.js",
     "generate-key:1d": "node generate-key.js 1d",
     "generate-key:7d": "node generate-key.js 7d"
   },
-  
   "dependencies": {
     "@sendgrid/mail": "^8.1.3",
     "aws-sdk": "^2.1691.0",
     "bcryptjs": "^2.4.3",
     "bull": "^4.16.3",
     "bullmq": "^5.56.4",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -72,6 +64,7 @@
     "i18next-http-middleware": "^3.6.0",
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.15",
     "oauth2-server": "^3.1.1",
@@ -106,7 +99,17 @@
     "prettier": "^3.3.3",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.2"
+  },
+  "_moduleAliases": {
+    "@": "dist",
+    "@core": "dist/core",
+    "@modules": "dist/modules",
+    "@shared": "dist/shared",
+    "@config": "dist/core/config",
+    "@database": "dist/core/database",
+    "@adapters": "dist/core/adapters"
   },
   "keywords": [
     "notifications",

@@ -7,16 +7,16 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 
 // Configuraciones
-import { envConfig } from '@config/env.config';
+import { envConfig } from './core/config/env.config';
 
 // Middlewares globales
-import { errorMiddleware } from '@core/middleware/error.middleware';
-import { authMiddleware } from '@core/middleware/auth.middleware';
-import { validationMiddleware } from '@core/middleware/validation.middleware';
-import { i18nMiddleware } from '@core/middleware/i18n.middleware';
+import { errorMiddleware } from './core/middleware/error.middleware';
+import { authMiddleware } from './core/middleware/auth.middleware';
+import { validationMiddleware } from './core/middleware/validation.middleware';
+import { i18nMiddleware } from './core/middleware/i18n.middleware';
 
 // Utilidades
-import { logger } from '@core/utils/logger';
+import { logger } from './core/utils/logger';
 
 export function createApp(): Application {
   const app: Application = express();
@@ -147,7 +147,7 @@ export function createApp(): Application {
     next();
   });
 
-  // ===== RUTAS ESPECIALES =====
+  // ===== RUTAS ESPECIALES (NO MÓDULOS) =====
   
   // Health check simple (antes de las rutas principales)
   app.get('/health', (req: Request, res: Response) => {
@@ -180,6 +180,10 @@ export function createApp(): Application {
       etag: false
     }));
   }
+
+  // ===== NOTA: LAS RUTAS DE MÓDULOS SE CONFIGURAN EN MAIN.TS =====
+  // No configurar rutas de módulos aquí, eso se hace en main.ts
+  // usando AppModule.getRoutes()
 
   // ===== MIDDLEWARE DE MANEJO DE 404 =====
   

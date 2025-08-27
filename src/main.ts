@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { envConfig } from '@config/env.config';
+import { envConfig } from './core/config/env.config';
 import { AppDataSource, initializeDatabase, closeDatabase } from './core/database/data-source';
 import { AppModule } from './app.module';
 import { createApp } from './app';
@@ -29,16 +29,18 @@ async function bootstrap(): Promise<void> {
     
     // 3. Inicializar módulos de la aplicación
     console.log('📦 Initializing application modules...');
-    AppModule.initialize();
-    console.log(`✅ ${AppModule.modules.length} modules initialized`);
+    AppModule.initialize(); // 🔥 AQUÍ se inicializa AppModule
+    console.log(`✅ Application modules initialized`);
     
-    // 4. Crear aplicación Express
+    // 4. Crear aplicación Express (middlewares, configuración)
     console.log('📦 Setting up Express application...');
     const app: Application = createApp();
     
-    // 5. Configurar rutas de los módulos
-    const routes = AppModule.getRoutes();
-    app.use('/api', routes);
+    // 5. Configurar rutas de los módulos (DESPUÉS de crear la app)
+    console.log('📦 Setting up module routes...');
+    const moduleRoutes = AppModule.getRoutes();
+    app.use('/', moduleRoutes); // Las rutas ya vienen con prefijo /api
+    console.log('✅ Module routes configured');
     
     // 6. Ruta de salud básica
     app.get('/', (req, res) => {

@@ -1,0 +1,37 @@
+{
+  "validation": {
+    "email": {
+      "invalid": "El email debe tener un formato válido",
+      "required": "El email es obligatorio"
+    },
+    "password": {
+      "required": "La contraseña es obligatoria",
+      "minLength": "La contraseña debe tener al menos {{min}} caracteres",
+      "maxLength": "La contraseña no puede exceder {{max}} caracteres"
+    },
+    "firstName": {
+      "required": "El nombre es obligatorio",
+      "empty": "El nombre no puede estar vacío",
+      "maxLength": "El nombre no puede exceder {{max}} caracteres"
+    },
+    "lastName": {
+      "required": "El apellido es obligatorio",
+      "empty": "El apellido no puede estar vacío",
+      "maxLength": "El apellido no puede exceder {{max}} caracteres"
+    },
+    "username": {
+      "text": "El username debe ser un texto",
+      "minLength": "El username debe tener al menos {{min}} caracteres",
+      "maxLength": "El username no puede exceder {{max}} caracteres"
+    }
+  },
+  "messages": {
+    "created": "Usuario creado exitosamente",
+    "updated": "Usuario actualizado exitosamente",
+    "deleted": "Usuario eliminado exitosamente",
+    "notFound": "Usuario no encontrado",
+    "alreadyExists": "El usuario ya existe",
+    "listSuccess": "Lista de usuarios obtenida exitosamente",
+    "getSuccess": "Usuario obtenido exitosamente"
+  }
+}

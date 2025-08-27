@@ -1,0 +1,37 @@
+{
+  "validation": {
+    "email": {
+      "invalid": "Email must have a valid format",
+      "required": "Email is required"
+    },
+    "password": {
+      "required": "Password is required",
+      "minLength": "Password must have at least {{min}} characters",
+      "maxLength": "Password cannot exceed {{max}} characters"
+    },
+    "firstName": {
+      "required": "First name is required",
+      "empty": "First name cannot be empty",
+      "maxLength": "First name cannot exceed {{max}} characters"
+    },
+    "lastName": {
+      "required": "Last name is required",
+      "empty": "Last name cannot be empty",
+      "maxLength": "Last name cannot exceed {{max}} characters"
+    },
+    "username": {
+      "text": "Username must be text",
+      "minLength": "Username must have at least {{min}} characters",
+      "maxLength": "Username cannot exceed {{max}} characters"
+    }
+  },
+  "messages": {
+    "created": "User created successfully",
+    "updated": "User updated successfully",
+    "deleted": "User deleted successfully",
+    "notFound": "User not found",
+    "alreadyExists": "User already exists",
+    "listSuccess": "User list retrieved successfully",
+    "getSuccess": "User retrieved successfully"
+  }
+}

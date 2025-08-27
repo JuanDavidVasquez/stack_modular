@@ -1,0 +1,16 @@
+{
+  "errors": {
+    "serverError": "Error interno del servidor",
+    "badRequest": "Solicitud incorrecta",
+    "unauthorized": "No autorizado",
+    "forbidden": "Acceso denegado",
+    "notFound": "No encontrado"
+  },
+  "general": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "success": "Operación exitosa"
+  }
+}

@@ -34,7 +34,7 @@
     "removeComments": false,
     "isolatedModules": false,
     
-    // ===== PATH MAPPING (OPCIONAL) =====
+    // ===== PATH MAPPING =====
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"],
@@ -51,7 +51,6 @@
     "resolveJsonModule": true
   },
   
-  // ===== INCLUDE & EXCLUDE =====
   "include": [
     "src/**/*.ts",
     "src/**/*.json",
