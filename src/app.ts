@@ -40,7 +40,8 @@ export function createApp(): Application {
       'Accept',
       'Origin',
       'Cache-Control',
-      'X-File-Name'
+      'X-File-Name',
+      'X-Language'
     ],
     exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
     maxAge: 86400,

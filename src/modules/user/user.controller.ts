@@ -85,9 +85,8 @@ export class UserController {
      * POST /users/create
      * Crear un nuevo usuario
      */
-    createUser = async (req: Request, res: Response) => { console.log('Creating user with data:', req.body);
+    createUser = async (req: Request, res: Response) => { 
         const locale = this.getLocale(req);
-        
         try {
             const data = req.body;
             
