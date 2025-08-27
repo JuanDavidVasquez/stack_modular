@@ -15,7 +15,7 @@ export class ResponseUtil {
         code: number = 200,
         meta?: any,
         headers?: Record<string, string>
-    ) {
+    ): Response {
         // Set custom headers si existen
         if (headers) {
             Object.entries(headers).forEach(([key, value]) => res.setHeader(key, value));
@@ -39,7 +39,7 @@ export class ResponseUtil {
         meta?: any,
         errors?: any[],
         headers?: Record<string, string>
-    ) {
+    ): Response {
         // Set custom headers si existen
         if (headers) {
             Object.entries(headers).forEach(([key, value]) => res.setHeader(key, value));

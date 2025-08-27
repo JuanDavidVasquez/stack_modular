@@ -1,34 +1,23 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
 import { t, SupportedLocale } from "../../locales/i18n.config";
+import { getLocale } from "@/shared/utils/getLocale.util";
 
 export class UserController {
 
-       constructor(private userService: UserService) { }
-
-    /**
-     * Obtener idioma del request
-     */
-    private getLocale(req: Request): SupportedLocale {
-        const locale = req.get('X-Language') || req.query.lang || 'es';
-        return (locale === 'en' || locale === 'es') ? locale : 'es';
-    }
+    constructor(private userService: UserService) {}
 
     /**
      * POST /users/list
      * Consulta usuarios con filtros y paginado
      */
     listUsers = async (req: Request, res: Response): Promise<void> => {
-        const locale = this.getLocale(req);
+        const locale: SupportedLocale = getLocale(req);
         
         try {
             const { filters = {}, page = 0, limit = 10 } = req.body;
 
-            const result = await this.userService.getUsers({
-                filters,
-                page,
-                limit,
-            }, locale);
+            const result = await this.userService.getUsers({ filters, page, limit }, locale);
 
             res.json({
                 message: t('user.messages.listSuccess', locale),
@@ -48,7 +37,7 @@ export class UserController {
      * Obtener un usuario por ID
      */
     getUserById = async (req: Request, res: Response) => {
-        const locale = this.getLocale(req);
+        const locale: SupportedLocale = getLocale(req);
         
         try {
             const { id } = req.body;
@@ -86,7 +75,8 @@ export class UserController {
      * Crear un nuevo usuario
      */
     createUser = async (req: Request, res: Response) => { 
-        const locale = this.getLocale(req);
+        const locale: SupportedLocale = getLocale(req);
+
         try {
             const data = req.body;
             
@@ -99,27 +89,16 @@ export class UserController {
 
             // Validaciones básicas usando i18n
             if (!data.email) {
-                return res.status(400).json({
-                    message: t('user.validation.email.required', locale)
-                });
+                return res.status(400).json({ message: t('user.validation.email.required', locale) });
             }
-
             if (!data.firstName) {
-                return res.status(400).json({
-                    message: t('user.validation.firstName.required', locale)
-                });
+                return res.status(400).json({ message: t('user.validation.firstName.required', locale) });
             }
-
             if (!data.lastName) {
-                return res.status(400).json({
-                    message: t('user.validation.lastName.required', locale)
-                });
+                return res.status(400).json({ message: t('user.validation.lastName.required', locale) });
             }
-
             if (!data.password) {
-                return res.status(400).json({
-                    message: t('user.validation.password.required', locale)
-                });
+                return res.status(400).json({ message: t('user.validation.password.required', locale) });
             }
 
             const user = await this.userService.createUser(data, locale);
@@ -133,9 +112,7 @@ export class UserController {
             
             // Si es un error específico (ej: email ya existe)
             if (error instanceof Error && error.message.includes('already exists')) {
-                return res.status(409).json({
-                    message: t('user.messages.alreadyExists', locale)
-                });
+                return res.status(409).json({ message: t('user.messages.alreadyExists', locale) });
             }
             
             return res.status(500).json({ 

@@ -27,8 +27,6 @@ export class UserService {
                 limit,
             });
 
-            // Calcular totalPages
-
             return {
                 data: result.items || [],
                 page,
@@ -37,7 +35,7 @@ export class UserService {
             };
         } catch (error) {
             console.error('Service error getting users:', error);
-            throw new Error(`Failed to retrieve users: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(t('common.errors.serverError', locale));
         }
     }
 
@@ -47,23 +45,19 @@ export class UserService {
     async getUserById(id: string, locale: SupportedLocale = 'es') {
         try {
             if (!id || id.trim() === '') {
-                throw new Error('User ID is required');
+                throw new Error(t('common.errors.badRequest', locale));
             }
 
-            // Tu BaseRepository tiene findById
             const user = await this.userRepository.findById(id);
             
             if (!user) {
                 return null;
             }
 
-            // Remover campos sensibles si existen
-            const safeUser = this.removeSensitiveFields(user);
-            
-            return safeUser;
+            return this.removeSensitiveFields(user);
         } catch (error) {
             console.error('Service error getting user by ID:', error);
-            throw new Error(`Failed to retrieve user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(t('common.errors.serverError', locale));
         }
     }
 
@@ -72,13 +66,10 @@ export class UserService {
      */
     async createUser(data: Record<string, any>, locale: SupportedLocale = 'es') {
         try {
-            // Validaciones adicionales de negocio
             await this.validateUserCreation(data, locale);
 
-            // Normalizar datos
             const normalizedData = this.normalizeUserData(data);
 
-            // Agregar valores por defecto
             const userWithDefaults = {
                 ...normalizedData,
                 status: data.status || 'active',
@@ -92,16 +83,12 @@ export class UserService {
                 updatedAt: new Date()
             };
 
-            // Tu BaseRepository tiene create
             const user = await this.userRepository.create(userWithDefaults);
 
-            // Remover campos sensibles antes de retornar
-            const safeUser = this.removeSensitiveFields(user);
-            
-            return safeUser;
+            return this.removeSensitiveFields(user);
         } catch (error) {
             console.error('Service error creating user:', error);
-            throw error; 
+            throw error; // el controller usará ResponseUtil.error con el mensaje
         }
     }
 
@@ -109,42 +96,47 @@ export class UserService {
      * Validaciones de negocio para creación de usuario
      */
     private async validateUserCreation(data: Record<string, any>, locale: SupportedLocale) {
-        // Verificar si el email ya existe usando tu sistema de filtros
+        if (!data.firstName) throw new Error(t('user.validation.firstName.required', locale));
+        if (!data.lastName) throw new Error(t('user.validation.lastName.required', locale));
+        if (!data.email) throw new Error(t('user.validation.email.required', locale));
+        if (!data.password) throw new Error(t('user.validation.password.required', locale));
+
+        // Validar formato de email
+        if (data.email && !this.isValidEmail(data.email)) {
+            throw new Error(t('user.validation.email.invalid', locale));
+        }
+
+        // Validar longitud de password
+        if (data.password && data.password.length < 8) {
+            throw new Error(
+                t('user.validation.password.minLength', locale).replace('{{min}}', '8')
+            );
+        }
+
+        // Verificar si el email ya existe
         if (data.email) {
-            const existingEmailResult = await this.userRepository.findFiltered({
+            const existingEmail = await this.userRepository.findFiltered({
                 filters: { email: data.email.toLowerCase().trim() },
                 selectFields: ['id'],
                 page: 0,
                 limit: 1
             });
-            
-            if (existingEmailResult.items.length > 0) {
-                throw new Error('User with this email already exists');
+            if (existingEmail.items.length > 0) {
+                throw new Error(t('user.messages.alreadyExists', locale));
             }
         }
 
         // Verificar si el username ya existe
         if (data.username) {
-            const existingUsernameResult = await this.userRepository.findFiltered({
+            const existingUsername = await this.userRepository.findFiltered({
                 filters: { username: data.username.toLowerCase().trim() },
                 selectFields: ['id'],
                 page: 0,
                 limit: 1
             });
-            
-            if (existingUsernameResult.items.length > 0) {
-                throw new Error('Username already taken');
+            if (existingUsername.items.length > 0) {
+                throw new Error(t('user.validation.username.text', locale));
             }
-        }
-
-        // Validar formato de email
-        if (data.email && !this.isValidEmail(data.email)) {
-            throw new Error('Invalid email format');
-        }
-
-        // Validar longitud de password
-        if (data.password && data.password.length < 8) {
-            throw new Error('Password must be at least 8 characters long');
         }
     }
 
@@ -153,23 +145,10 @@ export class UserService {
      */
     private normalizeUserData(data: Record<string, any>) {
         const normalized = { ...data };
-        
-        if (normalized.email) {
-            normalized.email = normalized.email.toLowerCase().trim();
-        }
-        
-        if (normalized.username) {
-            normalized.username = normalized.username.toLowerCase().trim();
-        }
-        
-        if (normalized.firstName) {
-            normalized.firstName = normalized.firstName.trim();
-        }
-        
-        if (normalized.lastName) {
-            normalized.lastName = normalized.lastName.trim();
-        }
-        
+        if (normalized.email) normalized.email = normalized.email.toLowerCase().trim();
+        if (normalized.username) normalized.username = normalized.username.toLowerCase().trim();
+        if (normalized.firstName) normalized.firstName = normalized.firstName.trim();
+        if (normalized.lastName) normalized.lastName = normalized.lastName.trim();
         return normalized;
     }
 
@@ -178,25 +157,12 @@ export class UserService {
      */
     private removeSensitiveFields(user: any) {
         const sensitiveFields = [
-            'password',
-            'resetPasswordToken', 
-            'resetPasswordExpires',
-            'verificationCode',
-            'verificationCodeExpires',
-            'loginAttempts',
-            'lockedUntil',
-            'lastLoginIp',
-            'lastUserAgent'
+            'password', 'resetPasswordToken', 'resetPasswordExpires',
+            'verificationCode', 'verificationCodeExpires', 'loginAttempts',
+            'lockedUntil', 'lastLoginIp', 'lastUserAgent'
         ];
-
         const safeUser = { ...user };
-        
-        sensitiveFields.forEach(field => {
-            if (safeUser.hasOwnProperty(field)) {
-                delete safeUser[field];
-            }
-        });
-        
+        sensitiveFields.forEach(field => delete safeUser[field]);
         return safeUser;
     }
 
@@ -209,7 +175,7 @@ export class UserService {
     }
 
     /**
-     * buscar por email
+     * Buscar por email
      */
     async findByEmail(email: string) {
         const result = await this.userRepository.findFiltered({
@@ -217,12 +183,11 @@ export class UserService {
             page: 0,
             limit: 1
         });
-        
         return result.items.length > 0 ? result.items[0] : null;
     }
 
     /**
-     * buscar por username
+     * Buscar por username
      */
     async findByUsername(username: string) {
         const result = await this.userRepository.findFiltered({
@@ -230,7 +195,6 @@ export class UserService {
             page: 0,
             limit: 1
         });
-        
         return result.items.length > 0 ? result.items[0] : null;
     }
 }

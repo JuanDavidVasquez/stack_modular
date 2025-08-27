@@ -1,7 +1,7 @@
 {
   "validation": {
     "email": {
-      "invalid": "Email must have a valid format",
+      "invalid": "Email must be a valid format",
       "required": "Email is required"
     },
     "password": {
@@ -20,7 +20,7 @@
       "maxLength": "Last name cannot exceed {{max}} characters"
     },
     "username": {
-      "text": "Username must be text",
+      "text": "Username must be a string",
       "minLength": "Username must have at least {{min}} characters",
       "maxLength": "Username cannot exceed {{max}} characters"
     }
@@ -31,7 +31,7 @@
     "deleted": "User deleted successfully",
     "notFound": "User not found",
     "alreadyExists": "User already exists",
-    "listSuccess": "User list retrieved successfully",
-    "getSuccess": "User retrieved successfully"
+    "listSuccess": "Users list fetched successfully",
+    "getSuccess": "User fetched successfully"
   }
 }
