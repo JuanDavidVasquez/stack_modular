@@ -4,11 +4,17 @@ const tableName = process.env.AUTH_TABLE_NAME || "user";
 const Entity = require("@/shared/models")[tableName];
 
 export class UserRepository extends BaseRepository<typeof Entity> {
-    constructor() {
-        super(Entity);
-    }
+  constructor() {
+    super(Entity);
+  }
 
-    async findFiltered(filters: Record<string, any>) {
-        return this.findWithFilters(filters, tableName);
-    }
+  async findFiltered(options: {
+    filters?: Record<string, any>;
+    selectFields?: string[];
+    page?: number;
+    limit?: number;
+  }) {
+    const { filters = {}, selectFields, page = 0, limit = 10 } = options;
+    return this.findWithFilters(filters, tableName, selectFields, page, limit);
+  }
 }
