@@ -1,0 +1,19 @@
+* no se crea en el app la autorizacion, si no que se muestra de las que carguen (otro rol supervisor)
+* registrar hora del cargue del registro en el offline para reporteeria
+
+-> Debe tener un registro de cuantas veces y quien modifico el registro
+
+//TITULO nombre de la empresa
+CON CIENCIA
+
+//a parte del (a tiempo, por vence)
+
+tambien agregar un estado
+
+//por cada prestador colocar tiempo para calcular a tiempo/por vences/ etc
+
+//cuando realice el login debe selecionar un centro medico, y solo debe salir datos de ese
+centro medico
+
+
+//Buscador que traiga lo pendiente 

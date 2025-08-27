@@ -1,0 +1,73 @@
+{
+  "compilerOptions": {
+    // ===== OUTPUT CONFIGURATION =====
+    "outDir": "./dist",
+    "rootDir": "./src",
+    
+    // ===== MODULE RESOLUTION =====
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    
+    // ===== DECORATORS (IMPORTANTE PARA TYPEORM) =====
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    
+    // ===== STRICT TYPE CHECKING =====
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+    
+    // ===== MODULE INTEROPERABILITY =====
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    // ===== DEVELOPMENT & DEBUGGING =====
+    "sourceMap": true,
+    "declaration": false,
+    "removeComments": false,
+    "isolatedModules": false,
+    
+    // ===== PATH MAPPING (OPCIONAL) =====
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"],
+      "@core/*": ["core/*"],
+      "@modules/*": ["modules/*"],
+      "@shared/*": ["shared/*"],
+      "@config/*": ["core/config/*"],
+      "@database/*": ["core/database/*"],
+      "@adapters/*": ["core/adapters/*"]
+    },
+    
+    // ===== OTHER OPTIONS =====
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  
+  // ===== INCLUDE & EXCLUDE =====
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json",
+    "tests/**/*.ts"
+  ],
+  
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  
+  // ===== TS-NODE CONFIGURATION =====
+  "ts-node": {
+    "esm": false,
+    "experimentalSpecifierResolution": "node"
+  }
+}

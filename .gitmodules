@@ -1,0 +1,3 @@
+[submodule "src/shared/models"]
+	path = src/shared/models
+	url = https://github.com/JuanDavidVasquez/models_stack.git

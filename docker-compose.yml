@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: api-main-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: api_main_db
+      MYSQL_USER: api_user
+      MYSQL_PASSWORD: api_password
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    networks:
+      - api-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "api_user", "-papi_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    command: --default-authentication-plugin=mysql_native_password
+
+  # phpMyAdmin - Herramienta web para administrar MySQL
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2
+    container_name: api-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: api_user
+      PMA_PASSWORD: api_password
+      MYSQL_ROOT_PASSWORD: root_password
+      PMA_ARBITRARY: 1
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - api-network
+
+# Volúmenes persistentes
+volumes:
+  mysql_data:
+    driver: local
+    name: api_main_mysql_data
+
+# Red interna para los servicios
+networks:
+  api-network:
+    driver: bridge
+    name: api-main-network

@@ -1,0 +1,138 @@
+{
+  "name": "api-main",
+  "version": "1.0.0",
+  "description": "API Principal - Orquestador de microservicios con TypeORM y MySQL",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "npm run db:up && npm run wait-db && npm run dev:local",
+    "dev:local": "cross-env NODE_ENV=local nodemon --exec ts-node src/main.ts",
+    "dev:development": "cross-env NODE_ENV=development nodemon --exec ts-node src/main.ts",
+    "dev:staging": "cross-env NODE_ENV=staging nodemon --exec ts-node src/main.ts",
+    "dev:clean": "npm run db:reset && npm run migration:run && npm run seed:run && npm run dev:local",
+    
+    "start": "node dist/main.js",
+    "production": "cross-env NODE_ENV=production node dist/main.js",
+    "build": "tsc",
+
+    "db:up": "docker-compose up -d mysql",
+    "db:down": "docker-compose down",
+    "db:logs": "docker-compose logs -f mysql",
+    "db:reset": "docker-compose down -v && docker-compose up -d mysql",
+    "db:shell": "docker-compose exec mysql mysql -u api_user -papi_password api_main_db",
+
+    "phpmyadmin:up": "docker-compose up -d phpmyadmin",
+    "phpmyadmin:down": "docker-compose stop phpmyadmin",
+
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v --rmi all",
+
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm -- migration:generate src/core/database/migrations/Migration -d src/core/database/data-source.ts",
+    "migration:run": "npm run typeorm -- migration:run -d src/core/database/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/core/database/data-source.ts",
+    "migration:show": "npm run typeorm -- migration:show -d src/core/database/data-source.ts",
+    "seed:run": "ts-node src/core/database/seeds/run-seeds.ts",
+
+    "test": "cross-env NODE_ENV=test jest",
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage",
+
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+
+    "wait-db": "node -e \"const net = require('net'); const client = new net.Socket(); const check = () => { client.connect(3306, 'localhost', () => { console.log('✅ MySQL Database ready!'); client.destroy(); process.exit(0); }); client.on('error', () => { setTimeout(check, 1000); }); }; check();\"",
+    "clean": "rm -rf dist node_modules",
+    "clean:build": "rm -rf dist",
+
+    "generate-key": "node generate-key.js",
+    "generate-key:1d": "node generate-key.js 1d",
+    "generate-key:7d": "node generate-key.js 7d"
+  },
+  
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.3",
+    "aws-sdk": "^2.1691.0",
+    "bcryptjs": "^2.4.3",
+    "bull": "^4.16.3",
+    "bullmq": "^5.56.4",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-oauth-server": "^2.0.0",
+    "express-rate-limit": "^7.4.1",
+    "firebase-admin": "^12.5.0",
+    "handlebars": "^4.7.8",
+    "helmet": "^7.1.0",
+    "i18n": "^0.15.1",
+    "i18next": "^23.15.1",
+    "i18next-http-middleware": "^3.6.0",
+    "ioredis": "^5.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "nodemailer": "^6.9.15",
+    "oauth2-server": "^3.1.1",
+    "redis": "^4.7.0",
+    "reflect-metadata": "^0.2.2",
+    "twilio": "^5.3.2",
+    "typeorm": "^0.3.20",
+    "ua-parser-js": "^1.0.39",
+    "winston": "^3.14.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/ioredis": "^4.28.10",
+    "@types/jest": "^29.5.13",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.7.4",
+    "@types/nodemailer": "^6.4.17",
+    "@types/oauth2-server": "^3.0.18",
+    "@types/ua-parser-js": "^0.7.39",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.30.1",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  },
+  "keywords": [
+    "notifications",
+    "microservice",
+    "email",
+    "sms",
+    "push-notifications",
+    "typescript",
+    "node.js",
+    "redis",
+    "bull-queue",
+    "typeorm",
+    "docker"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tu-usuario/notifications-service.git"
+  },
+  "author": "Juan Vasquez <ingjuandavid@hotmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tu-usuario/notifications-service/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/notifications-service#readme"
+}
