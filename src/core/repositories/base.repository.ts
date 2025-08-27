@@ -13,6 +13,7 @@ export class BaseRepository<T extends Record<string, any>> {
     }
 
     async create(data: DeepPartial<T>): Promise<T> {
+        console.log('Creating entity with data:', data);
         const entity = this.repository.create(data);
         return this.repository.save(entity);
     }

@@ -1,68 +1,55 @@
+import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import path from 'path';
+import { databaseConfig } from '../config/database.config';
 
-// Cargar variables de entorno para CLI
-const env = process.env.NODE_ENV || 'development';
-const envFiles = {
-  'local': '.env.local',
-  'development': '.env.development', 
-  'staging': '.env.staging',
-  'production': '.env.production'
+// ===== CARGAR VARIABLES DE ENTORNO SEGÚN ENV =====
+const env = process.env.NODE_ENV || 'local';
+const envFiles: Record<string, string> = {
+  local: '.env.local',
+  staging: '.env.staging',
+  production: '.env.production',
 };
-
-const envFile = envFiles[env as keyof typeof envFiles] || '.env.local';
+const envFile = envFiles[env] || '.env.local';
 const envPath = path.join(__dirname, '..', 'config', 'environments', envFile);
 config({ path: envPath });
 
-// Importar todas las entidades
-/* import { User } from './entities/user.entity';
-import { Session } from './entities/session.entity'; */
-
+// ===== DATASOURCE =====
 export const AppDataSource = new DataSource({
   type: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306', 10),
-  username: process.env.DB_USERNAME || 'api_user',
-  password: process.env.DB_PASSWORD || 'api_password',
-  database: process.env.DB_NAME || 'api_main_db',
-  charset: 'utf8mb4',
-  
-  // Configuración según entorno
-  synchronize: false, // Siempre false, usar migraciones
-  logging: env === 'development' || env === 'local' ? ['query', 'error'] : ['error'],
-  
-  // Entidades registradas
+  host: databaseConfig.connection.host,
+  port: databaseConfig.connection.port,
+  username: databaseConfig.connection.username,
+  password: databaseConfig.connection.password,
+  database: databaseConfig.connection.database,
+  charset: databaseConfig.connection.charset,
+
   entities: [
-    // User, Session // 🔥 Cuando las crees
-    // Por ahora rutas dinámicas:
-    'src/core/database/entities/**/*.ts',
-    'dist/core/database/entities/**/*.js'
+    'src/shared/models/entities/**/*.model.ts',
+    'dist/shared/models/entities/**/*.model.js',
   ],
-  
-  // Migraciones
+
   migrations: [
-    'src/core/database/migrations/**/*.ts',
-    'dist/core/database/migrations/**/*.js'
+    `${databaseConfig.migrations.directory}/**/*.ts`,
+    `${databaseConfig.migrations.directory}/**/*.js`,
   ],
-  
-  // Configuraciones específicas para MySQL
-  extra: {
-    connectionLimit: 10,
-    acquireTimeout: 60000,
-    timeout: 60000,
-    timezone: '+00:00',
-  },
+
+  // Sincronización activable solo desde .env y nunca en producción
+  synchronize: env === 'local' ? process.env.TYPEORM_SYNC === 'true' : false,
+
+  logging: databaseConfig.logging.enabled,
 });
 
-// Log para debugging
-if (env === 'development' || env === 'local') {
+// ===== DEBUG =====
+if (['local', 'staging'].includes(env)) {
   console.log('🔧 TypeORM DataSource loaded:');
   console.log(`   Environment: ${env}`);
-  console.log(`   Database: ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+  console.log(`   Database: ${databaseConfig.connection.host}:${databaseConfig.connection.port}/${databaseConfig.connection.database}`);
+  console.log(`   Synchronize: ${AppDataSource.options.synchronize}`);
 }
 
-// Función para inicializar la conexión
+// ===== FUNCIONES DE INICIALIZACIÓN =====
 export const initializeDatabase = async (): Promise<void> => {
   try {
     await AppDataSource.initialize();
@@ -73,7 +60,6 @@ export const initializeDatabase = async (): Promise<void> => {
   }
 };
 
-// Función para cerrar la conexión
 export const closeDatabase = async (): Promise<void> => {
   if (AppDataSource.isInitialized) {
     await AppDataSource.destroy();

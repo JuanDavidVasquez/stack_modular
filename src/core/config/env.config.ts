@@ -167,6 +167,10 @@ export class EnvConfig {
       isStaging: this.isStaging,
     };
   }
+
+  get authTableName(): string {
+  return process.env.AUTH_TABLE_NAME || 'users';
+}
 }
 
 // Export singleton instance
@@ -176,3 +180,4 @@ export const envConfig = EnvConfig.getInstance();
 if (envConfig.isDevelopment) {
   envConfig.validate();
 }
+

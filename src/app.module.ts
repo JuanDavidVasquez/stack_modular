@@ -31,18 +31,28 @@ export class AppModule {
   }
 
   // ===== OBTENER RUTAS =====
-  static getRoutes(globalPrefix = 'api'): Router {
-    const router = Router();
-    this.initializedModules.forEach((module) => {
-      const routes = module.getRoutes();
-      if (routes) {
-        const routePrefix = module.name.toLowerCase().replace('module', '');
-        router.use(`/${globalPrefix}/${routePrefix}`, routes);
-        logger.info(`🛣️  Mounted ${module.name} routes at /${globalPrefix}/${routePrefix}`);
-      }
-    });
-    return router;
-  }
+static getRoutes(globalPrefix = 'api'): Router {
+  const router = Router();
+  this.initializedModules.forEach((module) => {
+    const routes = module.getRoutes();
+    if (routes) {
+      const routePrefix = module.name.toLowerCase().replace('module', '');
+      const fullPath = `/${globalPrefix}/${routePrefix}`;
+      router.use(fullPath, routes);
+      logger.info(`🛣️  Mounted ${module.name} routes at ${fullPath}`);
+
+      // 🔍 DEBUG: listar rutas de este módulo
+      console.log(`   Routes for ${module.name}:`);
+      routes.stack.forEach((layer: any) => {
+        if (layer.route && layer.route.path) {
+          const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+          console.log(`      ${methods} -> ${fullPath}${layer.route.path}`);
+        }
+      });
+    }
+  });
+  return router;
+}
 
   // ===== INFORMACIÓN DE MÓDULOS =====
   static getModulesInfo(): { name: string; hasRoutes: boolean }[] {
