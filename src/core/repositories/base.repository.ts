@@ -54,7 +54,7 @@ export class BaseRepository<T extends Record<string, any>> {
         const rows = await queryBuilder.getCount();
 
         // Calcular "skip" según la página
-        const skip = page * limit;
+        const skip = (page-1) * limit;
 
         // Aplicar paginado
         const items = await queryBuilder.skip(skip).take(limit).getMany();

@@ -1,13 +1,6 @@
 import { UserRepository } from "./user.repository";
 import { t, SupportedLocale } from "../../locales/i18n.config";
-
-// Interfaz para opciones de búsqueda
-interface FindUsersOptions {
-    filters?: Record<string, any>;
-    selectFields?: string[];
-    page?: number;
-    limit?: number;
-}
+import { FindUsersOptions } from "@/shared/interfaces/findUserOptions.interface";
 
 export class UserService {
     constructor(private userRepository: UserRepository) {}
@@ -31,7 +24,7 @@ export class UserService {
                 data: result.items || [],
                 page,
                 limit,
-                total: result.rows || 0
+                rows: result.rows || 0
             };
         } catch (error) {
             console.error('Service error getting users:', error);
@@ -88,7 +81,7 @@ export class UserService {
             return this.removeSensitiveFields(user);
         } catch (error) {
             console.error('Service error creating user:', error);
-            throw error; // el controller usará ResponseUtil.error con el mensaje
+            throw error;
         }
     }
 
