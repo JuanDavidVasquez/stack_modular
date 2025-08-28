@@ -22,5 +22,11 @@
     "text": "Username must be text",
     "minLength": "Username must have at least {{min}} characters",
     "maxLength": "Username cannot exceed {{max}} characters"
+  },
+  "alreadyExists": {
+    "text": {
+      "email": "Email is already in use",
+      "username": "Username is already in use"
+    }
   }
 }

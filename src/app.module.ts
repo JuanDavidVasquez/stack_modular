@@ -3,12 +3,15 @@ import { envConfig } from '@config/env.config';
 import { logger } from '@core/utils/logger';
 import { ModuleInterface } from './shared/interfaces/module.interface';
 import { UserModule } from '@modules/user/user.module';
+import { SessionModule } from './modules/session/session.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 export class AppModule {
   // ----- Módulos predefinidos -----
   private static modules: (new () => ModuleInterface)[] = [
     UserModule,
-    // otros módulos
+    SessionModule,
+    AuthModule
   ];
 
   private static initializedModules: ModuleInterface[] = [];
