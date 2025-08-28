@@ -15,10 +15,22 @@ export const createUserRoutes = (userController: UserController): Router => {
     roleGuard(['admin']),
     userController.listUsers
   );
-  router.get("/get/:id", userController.getUserById);
-  router.post("/create", userController.createUser);
-  router.put("/update/:id", userController.updateUser);
-  router.delete("/delete/:id", userController.deleteUser);
+  router.get("/get/:id",
+     authGuard,
+    roleGuard(['admin']),
+    userController.getUserById);
+  router.post("/create",
+    authGuard,
+    roleGuard(['admin']),
+    userController.createUser);
+  router.put("/update/:id",
+    authGuard,
+    roleGuard(['admin']),
+    userController.updateUser);
+  router.delete("/delete/:id",
+    authGuard,
+    roleGuard(['admin']),
+    userController.deleteUser);
 
   return router;
 };
