@@ -1,6 +1,7 @@
 import { SessionRepository } from './session.repository';
 import { Session } from '@/shared/models/entities/session.model';
 import { generateSessionTokens, verifyToken, getUserFromToken } from '@/shared/utils/jwt.util';
+import { UserRepository } from '../user/user.repository';
 
 export class SessionService {
   private sessionRepository: SessionRepository;
@@ -23,6 +24,7 @@ export class SessionService {
     userAgent?: string;
     deviceName?: string;
     deviceType?: string;
+    role?: string;
     metadata?: Record<string, any>;
   }): Promise<{ session: Session; tokens: any }> {
     // 1. Desactivar sesiones existentes en esta entidad
@@ -34,7 +36,7 @@ export class SessionService {
       data.userId,
       sessionId,
       data.userEmail,
-      data.authEntity
+      data.authEntity,
     );
 
     // 3. Crear sesión en BD
@@ -52,15 +54,18 @@ export class SessionService {
       deviceType: data.deviceType,
       metadata: data.metadata
     });
-
-    // 4. Actualizar tokens con el ID real de la sesión
-    const finalTokens = await generateSessionTokens(
-      data.userId,
-      session.id,
-      data.userEmail,
-      data.authEntity
-    );
-
+    const userRepository = new UserRepository();
+    const { roles } = await userRepository.findById(session.userId);
+    //Actualizar tokens con el ID real de la sesión
+    const finalTokens = {
+      ...(await generateSessionTokens(
+        data.userId,
+        session.id,
+        data.userEmail,
+        data.authEntity,
+        roles
+      )),
+    };
     await this.sessionRepository.updateSessionTokens(
       session.id,
       finalTokens.accessToken,

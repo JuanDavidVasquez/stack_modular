@@ -1,0 +1,22 @@
+{
+    "page": {
+        "label": "Page",
+        "placeholder": "Enter page number"
+    },
+    "perPage": {
+        "label": "Items per page",
+        "placeholder": "Enter number of items"
+    },
+    "total": {
+        "label": "Total items",
+        "placeholder": "Total number of items"
+    },
+    "next": {
+        "label": "Next",
+        "placeholder": "Next page"
+    },
+    "prev": {
+        "label": "Previous",
+        "placeholder": "Previous page"
+    }
+}

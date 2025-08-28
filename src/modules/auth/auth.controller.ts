@@ -82,6 +82,7 @@ export class AuthController {
         ResponseUtil.validationError(req, res, 'validation.credentials.required');
         return;
       }
+      
 
       const loginData: LoginData = {
         email,
@@ -135,21 +136,21 @@ export class AuthController {
     try {
       const token = extractTokenFromHeader(req.headers.authorization);
       if (!token) {
-        ResponseUtil.unauthorized(req, res, 'messages.tokenMissing');
+        ResponseUtil.unauthorized(req, res, 'auth.messages.tokenMissing');
         return;
       }
 
       const tokenData = await getUserFromToken(token);
       if (!tokenData || !tokenData.sessionId) {
-        ResponseUtil.unauthorized(req, res, 'messages.tokenInvalid');
+        ResponseUtil.unauthorized(req, res, 'auth.messages.tokenInvalid');
         return;
       }
 
       await this.authService.logout(tokenData.sessionId);
 
-      ResponseUtil.success(req, res, 'messages.logoutSuccess');
+      ResponseUtil.success(req, res, 'auth.messages.logoutSuccess');
     } catch (error) {
-      ResponseUtil.error(req, res, 'messages.serverError', 500);
+      ResponseUtil.error(req, res, 'auth.messages.serverError', 500);
     }
   };
 
@@ -170,7 +171,7 @@ export class AuthController {
 
       const result = await this.authService.refreshTokens(refreshToken);
       if (!result) {
-        ResponseUtil.unauthorized(req, res, 'messages.tokenInvalid');
+        ResponseUtil.unauthorized(req, res, 'auth.messages.tokenInvalid');
         return;
       }
 
@@ -184,7 +185,7 @@ export class AuthController {
         }
       );
     } catch (error) {
-      ResponseUtil.error(req, res, 'messages.serverError', 500);
+      ResponseUtil.error(req, res, 'auth.messages.serverError', 500);
     }
   };
 
@@ -261,7 +262,7 @@ export class AuthController {
         ResponseUtil.notFound(req, res, 'validation.notFound');
         return;
       }
-      ResponseUtil.error(req, res, 'messages.serverError', 500);
+      ResponseUtil.error(req, res, 'auth.messages.serverError', 500);
     }
   };
 
@@ -290,7 +291,7 @@ export class AuthController {
         { message: 'If the email exists, a reset link will be sent' }
       );
     } catch (error) {
-      ResponseUtil.error(req, res, 'messages.serverError', 500);
+      ResponseUtil.error(req, res, 'auth.messages.serverError', 500);
     }
   };
 
@@ -314,9 +315,9 @@ export class AuthController {
         return;
       }
 
-      ResponseUtil.success(req, res, 'messages.updated');
+      ResponseUtil.success(req, res, 'auth.messages.updated');
     } catch (error) {
-      ResponseUtil.error(req, res, 'messages.serverError', 500);
+      ResponseUtil.error(req, res, 'auth.messages.serverError', 500);
     }
   };
 
@@ -344,9 +345,9 @@ export class AuthController {
         return;
       }
 
-      ResponseUtil.success(req, res, 'messages.updated');
+      ResponseUtil.success(req, res, 'auth.messages.updated');
     } catch (error) {
-      ResponseUtil.error(req, res, 'messages.serverError', 500);
+      ResponseUtil.error(req, res, 'auth.messages.serverError', 500);
     }
   };
 

@@ -92,38 +92,38 @@ export class AuthService {
    * Autenticar usuario y crear sesión
    */
   async login(loginData: LoginData) {
-    // 1. Buscar usuario por email
+    // Buscar usuario por email
     const user = await this.authRepository.findByEmailWithPassword(loginData.email);
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
-    // 2. Verificar si está bloqueado
+    // Verificar si está bloqueado
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / (60 * 1000));
       throw new Error(`Account locked. Try again in ${minutesLeft} minutes`);
     }
 
-    // 3. Verificar status del usuario
+    // Verificar status del usuario
     if (user.status !== UserStatus.ACTIVE) {
       throw new Error('Account is not active');
     }
 
-    // 4. Validar password
+    // Validar password
     const isValidPassword = await comparePassword(loginData.password, user.password);
     if (!isValidPassword) {
       await this.authRepository.incrementLoginAttempts(user.id);
       throw new Error('Invalid credentials');
     }
 
-    // 5. Actualizar información de login exitoso
+    // Actualizar información de login exitoso
     await this.authRepository.updateSuccessfulLogin(
       user.id,
       loginData.ipAddress,
       loginData.userAgent
     );
 
-    // 6. Crear nueva sesión (desactiva sesiones previas automáticamente)
+    // Crear nueva sesión (desactiva sesiones previas automáticamente)
     const sessionResult = await this.sessionService.createSession({
       userId: user.id,
       userEmail: user.email,

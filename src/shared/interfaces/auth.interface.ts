@@ -1,5 +1,6 @@
 export interface LoginData {
   email: string;
+  role?: string;
   password: string;
   ipAddress?: string;
   userAgent?: string;

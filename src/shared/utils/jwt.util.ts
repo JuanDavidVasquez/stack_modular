@@ -78,13 +78,15 @@ export const generateAccessToken = async (
 export const generateRefreshToken = async (
   userId: string, 
   sessionId: string,
-  authEntity: string
+  authEntity: string,
+  role?: string
 ): Promise<string> => {
   const payload = {
     sub: userId,
     sessionId,
     authEntity,
-    type: 'refresh'
+    type: 'refresh',
+    ...(role && { role })
   };
   
   return await generateToken(payload, { expiresIn: '7d' });
@@ -113,7 +115,7 @@ export const generateSessionTokens = async (
 }> => {
   const [accessToken, refreshToken] = await Promise.all([
     generateAccessToken(userId, sessionId, email, authEntity, role),
-    generateRefreshToken(userId, sessionId, authEntity)
+    generateRefreshToken(userId, sessionId, authEntity, role)
   ]);
 
   return {
