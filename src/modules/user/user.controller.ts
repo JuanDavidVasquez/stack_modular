@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
-import { t, SupportedLocale } from "../../locales/i18n.config";
-import { getLocale } from "@/shared/utils/getLocale.util";
+import { ResponseUtil } from "@/shared/utils/response.util";
 
 export class UserController {
 
@@ -12,61 +11,74 @@ export class UserController {
      * Consulta usuarios con filtros y paginado
      */
     listUsers = async (req: Request, res: Response): Promise<void> => {
-        const locale: SupportedLocale = getLocale(req);
-        
         try {
             const { filters = {}, page = 0, limit = 10 } = req.body;
 
-            const result = await this.userService.getUsers({ filters, page, limit }, locale);
+            const result = await this.userService.getUsers({ filters, page, limit });
 
-            res.json({
-                message: t('user.messages.listSuccess', locale),
-                data: result
-            });
+            // Si el resultado incluye información de paginación
+            if (result.rows !== undefined) {
+                ResponseUtil.paginated(
+                    req, 
+                    res, 
+                    'user.messages.listSuccess', 
+                    result.data,
+                    result.rows,
+                    page,
+                    limit
+                );
+            } else {
+                ResponseUtil.success(req, res, 'user.messages.listSuccess', result);
+            }
         } catch (error) {
             console.error('Error listing users:', error);
-            res.status(500).json({ 
-                message: t('common.errors.serverError', locale),
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
+            ResponseUtil.error(
+                req, 
+                res, 
+                'common.errors.serverError', 
+                500,
+                null,
+                null,
+                error instanceof Error ? [error.message] : ['Unknown error']
+            );
         }
     }
 
     /**
-     * POST /users/get
+     * GET /users/:id
      * Obtener un usuario por ID
      */
     getUserById = async (req: Request, res: Response) => {
-        const locale: SupportedLocale = getLocale(req);
-        
         try {
-            const { id } = req.body;
+            const { id } = req.params;
             
             if (!id) {
-                return res.status(400).json({ 
-                    message: t('common.errors.badRequest', locale),
-                    details: "ID is required"
-                });
+                return ResponseUtil.validationError(
+                    req, 
+                    res, 
+                    'common.errors.badRequest', 
+                    ['ID is required']
+                );
             }
 
-            const user = await this.userService.getUserById(id, locale);
+            const user = await this.userService.getUserById(id);
 
             if (!user) {
-                return res.status(404).json({ 
-                    message: t('user.messages.notFound', locale)
-                });
+                return ResponseUtil.notFound(req, res, 'user.messages.notFound');
             }
 
-            return res.json({
-                message: t('user.messages.getSuccess', locale),
-                data: user
-            });
+            return ResponseUtil.success(req, res, 'user.messages.getSuccess', user);
         } catch (error) {
             console.error('Error getting user by ID:', error);
-            return res.status(500).json({ 
-                message: t('common.errors.serverError', locale),
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
+            return ResponseUtil.error(
+                req, 
+                res, 
+                'common.errors.serverError', 
+                500,
+                null,
+                null,
+                error instanceof Error ? [error.message] : ['Unknown error']
+            );
         }
     }
 
@@ -75,50 +87,148 @@ export class UserController {
      * Crear un nuevo usuario
      */
     createUser = async (req: Request, res: Response) => { 
-        const locale: SupportedLocale = getLocale(req);
-
         try {
             const data = req.body;
             
             if (!data || Object.keys(data).length === 0) {
-                return res.status(400).json({ 
-                    message: t('common.errors.badRequest', locale),
-                    details: "User data is required"
-                });
+                return ResponseUtil.validationError(
+                    req, 
+                    res, 
+                    'common.errors.badRequest',
+                    ['User data is required']
+                );
             }
 
-            // Validaciones básicas usando i18n
-            if (!data.email) {
-                return res.status(400).json({ message: t('user.validation.email.required', locale) });
-            }
-            if (!data.firstName) {
-                return res.status(400).json({ message: t('user.validation.firstName.required', locale) });
-            }
-            if (!data.lastName) {
-                return res.status(400).json({ message: t('user.validation.lastName.required', locale) });
-            }
-            if (!data.password) {
-                return res.status(400).json({ message: t('user.validation.password.required', locale) });
+            // Validaciones básicas
+            const validationErrors: string[] = [];
+            if (!data.email) validationErrors.push('Email is required');
+            if (!data.firstName) validationErrors.push('First name is required');
+            if (!data.lastName) validationErrors.push('Last name is required');
+            if (!data.password) validationErrors.push('Password is required');
+
+            if (validationErrors.length > 0) {
+                return ResponseUtil.validationError(
+                    req, 
+                    res, 
+                    'common.errors.validation',
+                    validationErrors
+                );
             }
 
-            const user = await this.userService.createUser(data, locale);
+            const user = await this.userService.createUser(data);
 
-            return res.status(201).json({
-                message: t('user.messages.created', locale),
-                data: user
-            });
+            return ResponseUtil.success(
+                req, 
+                res, 
+                'user.messages.created', 
+                user, 
+                201
+            );
         } catch (error) {
             console.error('Error creating user:', error);
             
             // Si es un error específico (ej: email ya existe)
             if (error instanceof Error && error.message.includes('already exists')) {
-                return res.status(409).json({ message: t('user.messages.alreadyExists', locale) });
+                return ResponseUtil.conflict(req, res, 'user.messages.alreadyExists');
             }
             
-            return res.status(500).json({ 
-                message: t('common.errors.serverError', locale),
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
+            return ResponseUtil.error(
+                req, 
+                res, 
+                'common.errors.serverError', 
+                500,
+                null,
+                null,
+                error instanceof Error ? [error.message] : ['Unknown error']
+            );
+        }
+    }
+
+    /**
+     * PUT /users/update/:id
+     * Actualizar un usuario existente
+     */
+    updateUser = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const data = req.body;
+
+            if (!id) {
+                return ResponseUtil.validationError(
+                    req, 
+                    res, 
+                    'common.errors.badRequest',
+                    ['ID is required']
+                );
+            }
+
+            if (!data || Object.keys(data).length === 0) {
+                return ResponseUtil.validationError(
+                    req, 
+                    res, 
+                    'common.errors.badRequest',
+                    ['Update data is required']
+                );
+            }
+
+            const updatedUser = await this.userService.updateUser(id, data);
+
+            return ResponseUtil.success(req, res, 'user.messages.updated', updatedUser);
+        } catch (error) {
+            console.error('Error updating user:', error);
+            
+            // Si es un error específico (ej: usuario no encontrado)
+            if (error instanceof Error && error.message.includes('not found')) {
+                return ResponseUtil.notFound(req, res, 'user.messages.notFound');
+            }
+
+            return ResponseUtil.error(
+                req, 
+                res, 
+                'common.errors.serverError', 
+                500,
+                null,
+                null,
+                error instanceof Error ? [error.message] : ['Unknown error']
+            );
+        }
+    }
+
+    /**
+     * DELETE /users/delete/:id
+     * Eliminar (soft delete) un usuario por ID
+     */
+    deleteUser = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+
+            if (!id) {
+                return ResponseUtil.validationError(
+                    req, 
+                    res, 
+                    'common.errors.badRequest',
+                    ['ID is required']
+                );
+            }
+
+            const success = await this.userService.deleteUser(id);
+
+            if (!success) {
+                return ResponseUtil.notFound(req, res, 'user.messages.notFound');
+            }
+
+            return ResponseUtil.success(req, res, 'user.messages.deleted');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            return ResponseUtil.error(
+                req, 
+                res, 
+                'common.errors.serverError', 
+                500,
+                null,
+                null,
+                error instanceof Error ? [error.message] : ['Unknown error']
+            );
         }
     }
 }

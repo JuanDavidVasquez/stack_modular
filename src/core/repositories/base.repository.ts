@@ -22,6 +22,20 @@ export class BaseRepository<T extends Record<string, any>> {
         return this.repository.find();
     }
 
+    async update(id: string, data: DeepPartial<T>): Promise<T | null> {
+        const entity = await this.findById(id);
+        if (!entity) {
+            return null;
+        }
+        this.repository.merge(entity, data);
+        return this.repository.save(entity);
+    }
+
+    async softDelete(id: string): Promise<boolean> {
+        const result = await this.repository.softDelete(id);
+        return result.affected !== undefined && result.affected > 0;
+    }
+
     /**
      * Filtros dinámicos con selección de columnas
      * @param filters Objeto con filtros { key: value }
@@ -54,7 +68,7 @@ export class BaseRepository<T extends Record<string, any>> {
         const rows = await queryBuilder.getCount();
 
         // Calcular "skip" según la página
-        const skip = (page-1) * limit;
+        const skip = (page) * limit;
 
         // Aplicar paginado
         const items = await queryBuilder.skip(skip).take(limit).getMany();

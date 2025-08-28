@@ -1,16 +1,31 @@
 {
   "errors": {
-    "serverError": "Error interno del servidor",
-    "badRequest": "Solicitud incorrecta",
-    "unauthorized": "No autorizado",
-    "forbidden": "Acceso denegado",
-    "notFound": "No encontrado"
+    "serverError": "Internal server error",
+    "badRequest": "Bad request",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Access denied",
+    "notFound": "Not found",
+    "validation": "Validation error"
   },
   "general": {
-    "loading": "Cargando...",
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "delete": "Eliminar",
-    "success": "Operación exitosa"
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "success": "Operation successful"
+  },
+  "pagination": {
+    "page": "Page",
+    "of": "of",
+    "next": "Next",
+    "previous": "Previous",
+    "errors": {
+      "invalidPage": "Invalid page number",
+      "invalidPageSize": "Invalid page size",
+      "invalidSortOrder": "Invalid sort order"
+    },
+    "success": {
+      "fetched": "Data fetched successfully"
+    }
   }
 }

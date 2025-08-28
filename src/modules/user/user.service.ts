@@ -86,6 +86,59 @@ export class UserService {
     }
 
     /**
+     * Actualizar usuario
+    */
+    async updateUser(id: string, data: Record<string, any>, locale: SupportedLocale = 'es') {
+        try {
+            if (!id || id.trim() === '') {
+                throw new Error(t('common.errors.badRequest', locale));
+            }
+
+            const existingUser = await this.userRepository.findById(id);
+            if (!existingUser) {
+                throw new Error(t('user.messages.notFound', locale));
+            }
+
+            const normalizedData = this.normalizeUserData(data);
+            normalizedData.updatedAt = new Date();
+
+            await this.userRepository.update(id, normalizedData);
+
+            const updatedUser = await this.userRepository.findById(id);
+            return this.removeSensitiveFields(updatedUser);
+        } catch (error) {
+            console.error('Service error updating user:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Eliminar usuario (soft delete)
+    */
+    async deleteUser(id: string, locale: SupportedLocale = 'es') {
+        try {
+            if (!id || id.trim() === '') {
+                throw new Error(t('common.errors.badRequest', locale));
+            }
+
+            const existingUser = await this.userRepository.findById(id);
+            if (!existingUser) {
+                throw new Error(t('user.messages.notFound', locale));
+            }
+
+            const success = await this.userRepository.softDelete(id);
+            if (!success) {
+                throw new Error(t('common.errors.serverError', locale));
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Service error deleting user:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Validaciones de negocio para creación de usuario
      */
     private async validateUserCreation(data: Record<string, any>, locale: SupportedLocale) {

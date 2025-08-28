@@ -4,7 +4,8 @@
     "badRequest": "Solicitud incorrecta",
     "unauthorized": "No autorizado",
     "forbidden": "Acceso denegado",
-    "notFound": "No encontrado"
+    "notFound": "No encontrado",
+    "validation": "Error de validación"
   },
   "general": {
     "loading": "Cargando...",
@@ -12,5 +13,19 @@
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "success": "Operación exitosa"
+  },
+  "pagination": {
+    "page": "Página",
+    "of": "de",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "errors":{
+      "invalidPage": "Número de página inválido",
+      "invalidPageSize": "Tamaño de página inválido",
+      "invalidSortOrder": "Orden de clasificación inválido"
+    },
+    "success": {
+      "fetched": "Datos obtenidos exitosamente"
+    }
   }
 }
